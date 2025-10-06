@@ -1,0 +1,85 @@
+﻿@* Định nghĩa Model *@
+@model IEnumerable<Movie>
+
+@* Định nghĩa ViewData *@
+@{
+    ViewData["Title"] = "Danh sách phim";
+}
+
+@* Hiển thị danh sách phim *@
+
+<div class="row m-2">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 col-xs-6 border-primary mb-3" style="background-color: #2b2b2b">
+            <div class="card mb-3" style="max-width: 540px; background-color: #2b2b2b">
+                <div class="row g-0">
+                    <div class="col-md-12">
+                        <div class="text-white" style="background-color: #2b2b2b">
+                            <p class="text-dark" style="background-color: #2b2b2b">
+                                <h5 class="card-title text-white m-4" style="background-color: #2b2b2b">
+                                    @item.Name
+                                    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                                    {
+                                        <a class="text-white float-end" asp-action="Edit" asp-route-id="@item.Id"><i class="bi bi-pencil-square"></i></a>
+                                    }
+                                </h5>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <img src="@item.ImageURL" width="100%" alt="@item.Name">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <p class="card-text">@item.Description</p>
+                            <p class="card-text"><b>Rạp chiếu: </b>@item.Cinema.Name</p>
+                            <p class="card-text"><b>Thể loại: </b>@item.MovieCategory</p>
+                            <p class="card-text"><b>Ngày khởi chiếu: </b>@item.StartDate.ToString("dd/MM/yyyy")</p>
+                            <p class="card-text"><b>Ngày kết thúc: </b>@item.EndDate.ToString("dd/MM/yyyy")</p>
+                            <p class="card-text ">
+                                <b>Trạng thái: </b>
+                                @if (DateTime.Now >= item.StartDate && DateTime.Now <= item.EndDate)
+                                {
+                                    <span class="badge bg-success text-white">ĐANG CHIẾU</span>
+                                }
+                                else if (DateTime.Now > item.EndDate)
+                                {
+                                    <span class="badge bg-danger text-white">HẾT HẠN</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary text-white">SẮP CHIẾU</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-12 m-1">
+                        <div class="card-footer">
+                            <p class="card-text">
+                                <a class="btn btn-outline-primary float-right m-2" asp-action="Details" asp-route-id="@item.Id">
+                                    <i class="bi bi-eye-fill"></i> Xem chi tiết
+                                </a>
+                                <a class="btn btn-success text-white @((DateTime.Now > item.EndDate) ? "disabled" : "")"
+                                   asp-controller="Orders"
+                                   asp-action="AddToShoppingCart"
+                                   asp-route-id="@item.Id">
+                                    @item.Price.ToString("c0", new System.Globalization.CultureInfo("vi-VN"))
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div style="position: fixed; right: 25px; bottom: 25px; z-index:10" class="text-white">
+    @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-success text-decoration-none">
+            <i class="bi bi-plus-circle"></i> Thêm phim mới
+        </a>
+    }
+</div>
